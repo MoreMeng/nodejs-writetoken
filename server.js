@@ -34,57 +34,42 @@ app.get('/nhso/:cid', (req, res) => {
   const token = rfs.split('\#')
   // console.log(token[1])
   // let url = 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL';
-  let args = {
-    user_person_id: token[0],
-    smctoken: token[1],
-    person_id: req.params.cid + ''
-  }
+  // let args = {
+  //   user_person_id: token[0],
+  //   smctoken: token[1],
+  //   person_id: req.params.cid
+  // }
   // console.log(args);
   // example data
-  var url = 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL';
+  var url = 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1';
+  // var url = 'http://tokenws.ucws.nhso.go.th/UCWSTokenP1/searchCurrentByPIDRequest';
   var sampleHeaders = {
-    'SOAPAction': '',
-    'operation' : 'searchCurrentByPID',
+    'SOAPAction': 'http://tokenws.ucws.nhso.go.th/UCWSTokenP1/searchCurrentByPIDRequest',
+    'operation': 'searchCurrentByPID',
     'Content-Type': 'text/xml;charset=UTF-8',
   }
-  var xml = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tok="http://tokenws.ucws.nhso.go.th/">
-  <soapenv:Header/>
-  <soapenv:Body>
-     <tok:searchCurrentByPID>
-        <!--Optional:-->
-        <user_person_id>1839900250118</user_person_id>
-        <!--Optional:-->
-        <smctoken>t3bk778j5751946u</smctoken>
-        <!--Optional:-->
-        <person_id>3150300174300</person_id>
-     </tok:searchCurrentByPID>
-  </soapenv:Body>
-</soapenv:Envelope>`;
+  var xml = `<S:Envelope
+  xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAPENV="http://schemas.xmlsoap.org/soap/envelope/">
+   <SOAP-ENV:Header/>
+   <S:Body>
+   <ns2:searchCurrentByPID xmlns:ns2="http://tokenws.ucws.nhso.go.th/">
+        <user_person_id>${token[0]}</user_person_id>
+        <smctoken>${token[1]}</smctoken>
+        <person_id>${req.params.cid}</person_id>
+        </ns2:searchCurrentByPID>
+    </S:Body>
+  </S:Envelope>`;
 
   // console.log(xml);
   // usage of module
   (async () => {
-    const {
-      response'
-    } = await soapRequest({
-      url: url,
-      headers: sampleHeaders,
-      xml: xml,
-      timeout: 10000
-    }); // Optional timeout parameter(milliseconds)
-    const {
-      headers,
-      body,
-      statusCode
-    } = response;
+    const { response } = await soapRequest({ url: url, headers: sampleHeaders, xml: xml, timeout: 10000 }); // Optional timeout parameter(milliseconds)
+    const { headers, body, statusCode } = response;
     console.log(headers);
     console.log(body);
     console.log(statusCode);
   })();
 
-
 })
-
-
 
 app.listen(8009)
