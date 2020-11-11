@@ -75,7 +75,7 @@ app.get('/nhso/:cid', (req, res) => {
       // // console.log(profile.purchaseprovince_name[0])
       // console.log(`${profile.subinscl[0]} ${profile.subinscl_name[0]}`)
 
-      res.send(`${profile.title_name[0]} ${profile.fname[0]} ${profile.lname[0]} ${profile.primary_tumbon_name[0]} ${profile.primary_amphur_name[0]} ${profile.primary_province_name[0]} ${profile.subinscl[0]} ${profile.subinscl_name[0]}`)
+      res.send(`${profile.title_name[0]} ${profile.fname[0]} / ${profile.primary_province_name[0]} / ${profile.subinscl[0]} ${profile.subinscl_name[0]}`)
     })
   })
 })
