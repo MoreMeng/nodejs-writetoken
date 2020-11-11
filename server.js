@@ -1,7 +1,7 @@
-const soapRequest = require('easy-soap-request')
+const request = require('request')
 const express = require('express')
-const soap = require('soap')
 const fs = require('fs')
+const parseString = require('xml2js').parseString
 const app = express()
 
 const filePath = __dirname + '/token/data.txt'
@@ -33,43 +33,53 @@ app.get('/nhso/:cid', (req, res) => {
   // 1159900139892#64aqmw668uhi2473
   const token = rfs.split('\#')
   // console.log(token[1])
-  // let url = 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL';
+  let url = 'http://ucws.nhso.go.th:80/ucwstokenp1/UCWSTokenP1'
+
+  let xml = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tok="http://tokenws.ucws.nhso.go.th/">   <soapenv:Header/><soapenv:Body><tok:searchCurrentByPID><user_person_id>${token[0]}</user_person_id><smctoken>${token[1]}</smctoken><person_id>${req.params.cid}</person_id></tok:searchCurrentByPID></soapenv:Body></soapenv:Envelope>`
+
   // let args = {
   //   user_person_id: token[0],
   //   smctoken: token[1],
-  //   person_id: req.params.cid
+  //   person_id: req.params.cid,
+  //   length: xml.length
   // }
   // console.log(args);
-  // example data
-  var url = 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1';
-  // var url = 'http://tokenws.ucws.nhso.go.th/UCWSTokenP1/searchCurrentByPIDRequest';
-  var sampleHeaders = {
-    'SOAPAction': 'http://tokenws.ucws.nhso.go.th/UCWSTokenP1/searchCurrentByPIDRequest',
-    'operation': 'searchCurrentByPID',
-    'Content-Type': 'text/xml;charset=UTF-8',
+
+  let options = {
+    method: 'POST',
+    url: url,
+    'headers': {
+      'Accept-Encoding': 'gzip,deflate',
+      'Content-Type': 'text/xml;charset=UTF-8',
+      'SOAPAction': '""',
+      'Content-Length': xml.length,
+      'Host': 'ucws.nhso.go.th:80',
+      'Connection': 'Keep-Alive'
+    },
+    body: xml
   }
-  var xml = `<S:Envelope
-  xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAPENV="http://schemas.xmlsoap.org/soap/envelope/">
-   <SOAP-ENV:Header/>
-   <S:Body>
-   <ns2:searchCurrentByPID xmlns:ns2="http://tokenws.ucws.nhso.go.th/">
-        <user_person_id>${token[0]}</user_person_id>
-        <smctoken>${token[1]}</smctoken>
-        <person_id>${req.params.cid}</person_id>
-        </ns2:searchCurrentByPID>
-    </S:Body>
-  </S:Envelope>`;
+  request(options, (error, response) => {
+    if (error) throw new Error(error)
+    console.log(response.body)
 
-  // console.log(xml);
-  // usage of module
-  (async () => {
-    const { response } = await soapRequest({ url: url, headers: sampleHeaders, xml: xml, timeout: 10000 }); // Optional timeout parameter(milliseconds)
-    const { headers, body, statusCode } = response;
-    console.log(headers);
-    console.log(body);
-    console.log(statusCode);
-  })();
+    parseString(response.body, (err, result) => {
+      console.log( result )
 
+      let profile = result["S:Envelope"]["S:Body"][0]["ns2:searchCurrentByPIDResponse"][0]["return"][0]
+
+      console.log(profile)
+      console.log(profile.person_id[0])
+      // console.log(`${profile.title_name[0]} ${profile.fname[0]} ${profile.lname[0]}`)
+      // console.log(`${profile.hmain[0]} ${profile.hmain_name[0]}`)
+      // console.log(`${profile.primary_tumbon_name[0]} ${profile.primary_amphur_name[0]} ${profile.primary_province_name[0]}`)
+      // // console.log(profile.purchaseprovince_name[0])
+      // console.log(`${profile.subinscl[0]} ${profile.subinscl_name[0]}`)
+
+      res.send(`${profile.title_name[0]} ${profile.fname[0]} ${profile.lname[0]} ${profile.primary_tumbon_name[0]} ${profile.primary_amphur_name[0]} ${profile.primary_province_name[0]} ${profile.subinscl[0]} ${profile.subinscl_name[0]}`)
+    })
+  })
 })
 
-app.listen(8009)
+app.listen(8009, () => {
+  console.log('server started')
+})
