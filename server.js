@@ -9,7 +9,7 @@ const filePath = __dirname + '/token/data.txt'
 app.use('/token', express.static(__dirname + '/token'))
 app.use(express.static(__dirname + '/token'))
 
-app.put('/token', (req, res) => {
+app.post('/token', (req, res) => {
   let body = ''
   req.on('data', data => {
     body = data
