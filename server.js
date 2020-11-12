@@ -23,8 +23,21 @@ app.post('/token', (req, res) => {
 })
 
 app.get('/token', (req, res) => {
-  let token = fs.readFileSync(filePath)
-  console.log(`${token}`)
+
+  let modify = fs.stat(filePath, (err, stats) => {
+    if (err) {
+      throw err;
+    }
+
+    let token = fs.readFileSync(filePath)
+
+    console.log(`${token}`)
+    console.log(`File Data Last Modified: ${stats.mtime}`);
+
+    let msg = `${token}<br/>${stats.mtime}`
+
+    res.send(msg)
+  })
 })
 
 app.get('/nhso/:cid', (req, res) => {
@@ -63,7 +76,7 @@ app.get('/nhso/:cid', (req, res) => {
     console.log(response.body)
 
     parseString(response.body, (err, result) => {
-      console.log( result )
+      console.log(result)
 
       let profile = result["S:Envelope"]["S:Body"][0]["ns2:searchCurrentByPIDResponse"][0]["return"][0]
 

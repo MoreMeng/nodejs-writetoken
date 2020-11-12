@@ -1,7 +1,7 @@
 
-# GET http://127.0.0.1:8009/token HTTP/1.1
+GET http://127.0.0.1:8009/token HTTP/1.1
 
-GET http://127.0.0.1:8009/nhso/3150300174300 HTTP/1.1
+# GET http://127.0.0.1:8009/nhso/3150300174300 HTTP/1.1
 
 # GET  http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL HTTP/1.1
 
